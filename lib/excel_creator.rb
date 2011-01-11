@@ -13,18 +13,20 @@ class ExcelCreator
     hash = JSON.parse(data)
     hash.each do |key, value|
       if cell = get_cell_location(sheet, "{#{key}}")
-        dump_data(cell, value)
+        dump_data(cell, value, true)
+      elsif cell = get_cell_location(sheet, "[#{key}]")
+        dump_data(cell, value, false)
       end
     end
     spit
   end
 
-  def dump_data(cell, data)
+  def dump_data(cell, data, shift = true)
     current_cell = cell
     column_idx = cell.get_column_index
     current_row = cell.get_row
     if data.is_a? Array
-      data.each do |row_data|
+      data.each_with_index do |row_data, index|
         if row_data.is_a? Array
           row_data.each do |cell_data|
             current_cell.set_cell_value(cell_data)
@@ -33,8 +35,15 @@ class ExcelCreator
         else
           current_cell.set_cell_value(row_data)
         end
-        current_row = next_row(current_row)
-        current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
+        if index < data.size - 1
+          if shift
+            current_row = next_row_shift(current_row)
+            current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
+          else
+            current_row = next_row_no_shift(current_row)
+            current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
+          end
+        end
       end
     else
       cell.set_cell_value(data)
@@ -47,7 +56,15 @@ class ExcelCreator
     row.get_cell(idx + 1) || row.create_cell(idx + 1)
   end
 
-  def next_row(row)
+  def next_row_shift(row)
+    sheet = row.get_sheet
+    row_num = row.get_row_num
+    sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
+    sheet.shift_rows(row_num + 1, sheet.get_last_row_num, 1)
+    sheet.get_row(row_num + 1)
+  end
+
+  def next_row_no_shift(row)
     sheet = row.get_sheet
     row_num = row.get_row_num
     sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
