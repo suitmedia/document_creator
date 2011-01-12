@@ -5,6 +5,7 @@ GEM
     daemons (1.1.0)
     fastthread (1.0.7)
     gem_plugin (0.2.3)
+    haml (3.0.25)
     json (1.4.6)
     json (1.4.6-java)
     mongrel (1.1.5)
@@ -25,6 +26,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  haml
   json
   mongrel
   sinatra

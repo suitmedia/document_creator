@@ -6,6 +6,10 @@ class ExcelCreator
   include_class java.io.FileInputStream
   include_class java.io.FileOutputStream
 
+  def initialize(base)
+    @base = base
+  end
+
   def create(template, data)
     fs = FileInputStream.new File.expand_path("../../templates/#{template}", __FILE__)
     @wb = HSSFWorkbook.new(fs)
