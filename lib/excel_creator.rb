@@ -36,13 +36,8 @@ class ExcelCreator
           current_cell.set_cell_value(row_data)
         end
         if index < data.size - 1
-          if shift
-            current_row = next_row_shift(current_row)
-            current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
-          else
-            current_row = next_row_no_shift(current_row)
-            current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
-          end
+          current_row = next_row(current_row, shift)
+          current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
         end
       end
     else
@@ -56,18 +51,15 @@ class ExcelCreator
     row.get_cell(idx + 1) || row.create_cell(idx + 1)
   end
 
-  def next_row_shift(row)
+  def next_row(row, shift)
     sheet = row.get_sheet
     row_num = row.get_row_num
-    sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
-    sheet.shift_rows(row_num + 1, sheet.get_last_row_num, 1)
-    sheet.get_row(row_num + 1)
-  end
-
-  def next_row_no_shift(row)
-    sheet = row.get_sheet
-    row_num = row.get_row_num
-    sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
+    row = sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
+    if shift
+      sheet.shift_rows(row_num + 1, sheet.get_last_row_num, 1)
+      row = sheet.get_row(row_num + 1)
+    end
+    row
   end
 
   def spit

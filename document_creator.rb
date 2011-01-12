@@ -3,7 +3,7 @@ class DocumentCreator < Sinatra::Base
     'Document Creator'
   end
 
-  get '/create/xls/:template' do
+  post '/create/xls/:template' do
     content_type 'application/vnd.ms-excel'
     attachment
     ExcelCreator.new.create params[:template], params[:data]
