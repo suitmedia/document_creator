@@ -1,4 +1,5 @@
 class DocumentCreator < Sinatra::Base
+
   set :views, File.dirname(__FILE__) + '/templates'
 
   get '/' do
@@ -11,9 +12,16 @@ class DocumentCreator < Sinatra::Base
     ExcelCreator.new(self).create params[:template], params[:data]
   end
 
-  get '/create/pdf/:template' do
+  post '/create/pdf/:template' do
     content_type 'application/pdf'
     attachment
     PDFCreator.new(self).create params[:template], params[:data]
+  end
+
+  def json_to_instance_variables(json)
+    hash = JSON.parse json
+    hash.each do |k, v|
+      self.instance_variable_set(k, v)
+    end
   end
 end

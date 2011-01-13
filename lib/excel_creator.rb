@@ -16,7 +16,7 @@ class ExcelCreator
     sheet = @wb.get_sheet_at 0
     hash = JSON.parse(data)
     hash.each do |key, value|
-      if cell = get_cell_location(sheet, "{#{key}}")
+      if cell = get_cell_location(sheet, "(#{key})")
         dump_data(cell, value, true)
       elsif cell = get_cell_location(sheet, "[#{key}]")
         dump_data(cell, value, false)
