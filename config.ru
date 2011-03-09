@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'bundler'
 
-include Java
+#include Java
+require 'java'
 
 Bundler.require
 require './document_creator'
