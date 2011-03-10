@@ -11,7 +11,6 @@ class SpreadsheetCreator
 	def create
 	  write
 		throw_out
-		unlink_tempfile
 	end
 
 private
@@ -19,10 +18,10 @@ private
 	  @workbook = Spreadsheet::Workbook.new
 		sheet = @workbook.create_worksheet
 
-		content, header = @data.first, @data.last
-		sheet.row(1).replace(header)
+		content, header = @data["content"], @data["header"]
+		sheet.row(0).concat(header)
 		content.each_with_index do |row, i|	
-			sheet.row(i+2).push(row)
+			sheet.row(i+1).concat(row)
 		end
 	end
 
