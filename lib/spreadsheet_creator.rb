@@ -11,6 +11,7 @@ class SpreadsheetCreator
 	def create
 	  write
 		throw_out
+		unlink_tempfile
 	end
 
 private
@@ -26,8 +27,12 @@ private
 	end
 
 	def throw_out
-	  tmp_file = Tempfile.new(rand.to_s)
-		@workbook.write(tmp_file)
-		tmp_file
+	  @tmp_file = Tempfile.new(rand.to_s)
+		@workbook.write(@tmp_file)
+		@tmp_file
+	end
+
+	def unlink_tempfile
+	  @tmp_file.delete
 	end
 end
