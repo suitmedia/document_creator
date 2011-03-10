@@ -10,17 +10,17 @@ class SpreadsheetCreator
 	PlaceholderPrefix = "PLACEHOLDER_"
 
 	def initialize(data)
-	  #@data = JSON.parse data
+		#@data = JSON.parse data
 
 		@template_source_path = "/home/dimas/Projects/BIIU/lib/document_creator/templates/obligasi-sun.xls"
 		@data = {
-		:string => {
+			:string => {
 			:TANGGAL_CETAK => "1 Januari 2011", 
 			:TANGGAL_TRANSAKSI => "2 Januari 2011" },
-		:row => {
+			:row => {
 			:CONTENT =>	[[1,2,3],
-									 [4,5,6],
-									 [7,8,9]]}}
+				[4,5,6],
+				[7,8,9]]}}
 	end
 
 	def create
@@ -45,24 +45,29 @@ private
 	def replace_matched_data
 		(0..@worksheet.row_count).each do |row|
 		  (0..@worksheet.row(row).count).each do |col|
-				#replace string data
-				@data[:string].each do |k,v|
-					key = "#{PlaceholderPrefix}#{k}"
-				  if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
-					  @worksheet.cell(row, col).gsub(key, v)
-				  end
-				end
-
-				#replace rows data
-				@data[:row].each do |k,v|
-					key = "#{PlaceholderPrefix}#{k}"
-					if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
-						@data[:row].each_with_index do |record, i|
-						  @worksheet.row(row).concat(record)
-						end
-				  end
-				end
+				replace_string_data(row, col)
+				replace_row_data(row, col)
 		  end
+		end
+	end
+
+	def replace_string_data(row, col)
+		@data[:string].each do |k,v|
+			key = "#{PlaceholderPrefix}#{k}"
+			if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
+				@worksheet.cell(row, col).gsub!(key, v)
+			end
+		end
+	end
+
+	def replace_row_data(row, col)
+		@data[:row].each do |k,v|
+			key = "#{PlaceholderPrefix}#{k}"
+			if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
+				@data[:row].each_with_index do |record, i|
+					@worksheet.row(row).concat(record)
+				end
+			end
 		end
 	end
 
