@@ -5,7 +5,7 @@ Spreadsheet.client_encoding = 'UTF-8'
 
 class SpreadsheetCreator
 	def initialize(data)
-	  @data = data.to_a
+	  @data = JSON.parse data
 	end
 
 	def create
@@ -18,10 +18,10 @@ private
 	  @workbook = Spreadsheet::Workbook.new
 		sheet = @workbook.create_worksheet
 
-		content, header = @data.last, @data.first
+		content, header = @data.first, @data.last
 		sheet.row(1).replace(header)
 		content.each_with_index do |row, i|	
-			sheet.row(i+2).replace(row)
+			sheet.row(i+2).push(row)
 		end
 	end
 
