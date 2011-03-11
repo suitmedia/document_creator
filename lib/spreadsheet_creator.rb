@@ -34,7 +34,7 @@ class SpreadsheetCreator
     open_template_file
     replace_matched_data
     write_to_tempfile
-    unlink_template_file
+    delete_template_file
   end
 
   def write_to_tempfile
@@ -53,6 +53,7 @@ class SpreadsheetCreator
 
   def replace_string_data_if_found(row, col)
     @data[:string].each do |k,v|
+      key = spreadsheet_key(k)
       if cell_value_included_key?(row, col, key) 
         @worksheet.cell(row, col).gsub!(key, v)
       end
@@ -61,18 +62,22 @@ class SpreadsheetCreator
 
   def replace_row_data_if_found(row, col)
     @data[:row].each do |k,v|
-      if cell_value_included_key?(row,col,k)
-        @data[:row].each_with_index do |record, i|
-          @worksheet.row(row).concat(record)
+      key = spreadsheet_key(k)
+      if cell_value_included_key?(row,col,key)
+        @data[:row][k].each_with_index do |record,i|
+          @worksheet.row(row+i).replace(record)
         end
       end
     end
   end
 
   def cell_value_included_key?(row,col,key)
-    spreadsheet_key = "#{PlaceholderPrefix}#{key}"
-    @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(spreadsheet_key)
+    @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
   end
+
+	def spreadsheet_key(key)
+	  "#{PlaceholderPrefix}#{key}"
+	end
 
   def open_template_file
     @template = Spreadsheet.open(@template_path)
@@ -94,7 +99,7 @@ class SpreadsheetCreator
     @tempfile
   end
 
-  def unlink_template_file
+  def delete_template_file
     FileUtils.rm @template_path
   end
 end
