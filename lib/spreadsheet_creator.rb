@@ -1,7 +1,6 @@
 # Reference:
 # http://spreadsheet.rubyforge.org/GUIDE_txt.html
 require 'spreadsheet'
-require 'pp'
 
 Spreadsheet.client_encoding = 'UTF-8'
 
@@ -9,18 +8,21 @@ class SpreadsheetCreator
   TempDir = "tmp/templates/"
   PlaceholderPrefix = "PLACEHOLDER_"
 
-  def initialize(data)
-    #@data = JSON.parse data
+  # Use this format for 'data' parameter:
+  # @data = {
+  #   :string => {
+  #     :TANGGAL_CETAK => "1 Januari 2011", 
+  #     :TANGGAL_TRANSAKSI => "2 Januari 2011" },
+  #   :row => {
+  #     :CONTENT =>	[
+  #           [1,2,3],
+  #           [4,5,6],
+  #           [7,8,9]]
+  # }}
 
-    @template_source_path = "/home/dimas/Projects/BIIU/lib/document_creator/templates/obligasi-sun.xls"
-    @data = {
-            :string => {
-            :TANGGAL_CETAK => "1 Januari 2011", 
-            :TANGGAL_TRANSAKSI => "2 Januari 2011" },
-            :row => {
-            :CONTENT =>	[[1,2,3],
-                    [4,5,6],
-                    [7,8,9]]}}
+  def initialize(data, template_source_path)
+    @data = JSON.parse data
+    @template_source_path = template_source_path
   end
 
   def create
@@ -52,19 +54,19 @@ class SpreadsheetCreator
   end
 
   def replace_string_data_if_found(row, col)
-    @data[:string].each do |k,v|
+    @data["string"].each do |k,v|
       key = spreadsheet_key(k)
-      if cell_value_included_key?(row, col, key) 
+      if cell_value_included_key?(row, col, key)
         @worksheet.cell(row, col).gsub!(key, v)
       end
     end
   end
 
   def replace_row_data_if_found(row, col)
-    @data[:row].each do |k,v|
+    @data["row"].each do |k,v|
       key = spreadsheet_key(k)
       if cell_value_included_key?(row,col,key)
-        @data[:row][k].each_with_index do |record,i|
+        @data["row"][k].each_with_index do |record,i|
           @worksheet.row(row+i).replace(record)
         end
       end

@@ -12,10 +12,10 @@ class DocumentCreator < Sinatra::Base
     ExcelCreator.new(self).create params[:template], params[:data]
   end
 
-  post '/create/spreadsheet/:template' do
+  post '/create/spreadsheet' do
     content_type 'application/vnd.ms-excel'
     attachment
-    SpreadsheetCreator.new(params[:data]).create
+    SpreadsheetCreator.new(params[:data], params[:template]).create
   end
 
   post '/create/pdf/:template' do
