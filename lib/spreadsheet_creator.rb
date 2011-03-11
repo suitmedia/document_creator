@@ -94,16 +94,4 @@ class SpreadsheetCreator
   def unlink_template_file
     FileUtils.rm @template_path
   end
-
-  def write_old
-    @workbook = Spreadsheet::Workbook.new
-    sheet = @workbook.create_worksheet
-
-    content, header = @data["content"], @data["header"]
-    sheet.row(0).concat(header)
-    content.each_with_index do |row, i|	
-      sheet.row(i+1).concat(row)
-    end
-  end
-
 end
