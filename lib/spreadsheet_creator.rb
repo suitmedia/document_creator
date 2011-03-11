@@ -45,30 +45,33 @@ class SpreadsheetCreator
   def replace_matched_data
     (0..@worksheet.row_count).each do |row|
       (0..@worksheet.row(row).count).each do |col|
-        replace_string_data(row, col)
-        replace_row_data(row, col)
+        replace_string_data_if_found(row, col)
+        replace_row_data_if_found(row, col)
       end
     end
   end
 
-  def replace_string_data(row, col)
-  @data[:string].each do |k,v|
-    key = "#{PlaceholderPrefix}#{k}"
-      if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
+  def replace_string_data_if_found(row, col)
+    @data[:string].each do |k,v|
+      if cell_value_included_key?(row, col, key) 
         @worksheet.cell(row, col).gsub!(key, v)
       end
     end
   end
 
-  def replace_row_data(row, col)
-  @data[:row].each do |k,v|
-    key = "#{PlaceholderPrefix}#{k}"
-    if @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
-      @data[:row].each_with_index do |record, i|
-        @worksheet.row(row).concat(record)
+  def replace_row_data_if_found(row, col)
+    @data[:row].each do |k,v|
+      if cell_value_included_key?(row,col,k)
+        @data[:row].each_with_index do |record, i|
+          @worksheet.row(row).concat(record)
+        end
       end
     end
   end
+
+  def cell_value_included_key?(row,col,key)
+    spreadsheet_key = "#{PlaceholderPrefix}#{key}"
+    @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(spreadsheet_key)
   end
 
   def open_template_file
