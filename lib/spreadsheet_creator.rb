@@ -66,8 +66,10 @@ class SpreadsheetCreator
     @data["row"].each do |k,v|
       key = spreadsheet_key(k)
       if cell_value_included_key?(row,col,key)
-        @data["row"][k].each_with_index do |record,i|
-          @worksheet.row(row+i).replace(record)
+        @data["row"][k].each do |records|
+          records.each_with_index do |record,i|
+            @worksheet.row(row+i).replace(record)
+          end
         end
       end
     end
