@@ -1,6 +1,7 @@
 # Reference:
 # http://spreadsheet.rubyforge.org/GUIDE_txt.html
 require 'spreadsheet'
+require 'stringio'
 
 Spreadsheet.client_encoding = 'UTF-8'
 
@@ -14,7 +15,7 @@ class SpreadsheetCreator
   #     :TANGGAL_CETAK => "1 Januari 2011", 
   #     :TANGGAL_TRANSAKSI => "2 Januari 2011" },
   #   :row => {
-  #     :CONTENT =>	[
+  #     :CONTENT =>  [
   #           [1,2,3],
   #           [4,5,6],
   #           [7,8,9]]
@@ -27,21 +28,20 @@ class SpreadsheetCreator
 
   def create
     write
-    throw_out
   end
 
   private
   def write
-    copy_template_file
     open_template_file
     replace_matched_data
-    write_to_tempfile
-    delete_template_file
+    write_to_io
   end
 
-  def write_to_tempfile
-    @tempfile = Tempfile.new(rand.to_s)
-    @worksheet.workbook.write(@tempfile)
+  def write_to_io
+    io = StringIO.new
+    @worksheet.workbook.write(io)
+    io.rewind
+    io.read
   end
 
   def replace_matched_data
@@ -77,31 +77,13 @@ class SpreadsheetCreator
     @worksheet.cell(row,col) && @worksheet.cell(row,col).to_s.include?(key)
   end
 
-	def spreadsheet_key(key)
-	  "#{PlaceholderPrefix}#{key}"
-	end
+  def spreadsheet_key(key)
+    "#{PlaceholderPrefix}#{key}"
+  end
 
   def open_template_file
-    @template = Spreadsheet.open(@template_path)
+    @template = Spreadsheet.open(@template_source_path)
     @worksheet = @template.worksheets.first
   end
 
-  def copy_template_file
-    create_temp_dir_if_not_exist_yet
-    template_path = "#{File.expand_path("")}/#{TempDir}xls-#{rand}.xls"
-    FileUtils.cp(@template_source_path, template_path)	
-    @template_path = template_path if File.exist?(template_path)
-  end
-
-  def create_temp_dir_if_not_exist_yet
-    FileUtils.mkdir_p(TempDir) unless File.directory?(TempDir)
-  end
-
-  def throw_out
-    @tempfile
-  end
-
-  def delete_template_file
-    FileUtils.rm @template_path
-  end
 end
