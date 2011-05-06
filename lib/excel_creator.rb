@@ -6,19 +6,22 @@ class ExcelCreator
   include_class java.io.FileInputStream
   include_class java.io.FileOutputStream
 
+  TemplatePath = YAML.load_file(File.expand_path('../../config/config.yml', __FILE__))['template']['path']
+
   def initialize(base)
     @base = base
   end
 
   def create(template, data)
-    fs = FileInputStream.new File.expand_path("../../templates/#{template}", __FILE__)
+    template = 'financial-deposito.xls'
+    fs = FileInputStream.new(TemplatePath+template) 
     @wb = HSSFWorkbook.new(fs)
     sheet = @wb.get_sheet_at 0
     hash = JSON.parse(data)
     hash.each do |key, value|
-      if cell = get_cell_location(sheet, "(#{key})")
+      if cell = get_cell_location(sheet, "#{key}")
         dump_data(cell, value, true)
-      elsif cell = get_cell_location(sheet, "[#{key}]")
+      elsif cell = get_cell_location(sheet, "#{key}")
         dump_data(cell, value, false)
       end
     end
@@ -81,6 +84,8 @@ class ExcelCreator
     sheet.rowIterator.each do |row|
       row.cellIterator.find do |cell|
         begin
+          pp cell.get_string_cell_value
+          pp str
         res = cell if cell.get_string_cell_value == str
         rescue
         end

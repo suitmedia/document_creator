@@ -1,9 +1,16 @@
+require 'pp'
 class DocumentCreator < Sinatra::Base
 
   set :views, File.dirname(__FILE__) + '/templates'
 
   get '/' do
     'Document Creator'
+  end
+
+  post '/create' do
+    content_type 'application/vnd.ms-excel'
+    attachment
+    ExcelCreator.new(self).create params[:template], params[:data]
   end
 
   post '/create/xls/:template' do
