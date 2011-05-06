@@ -84,8 +84,6 @@ class ExcelCreator
     sheet.rowIterator.each do |row|
       row.cellIterator.find do |cell|
         begin
-          pp cell.get_string_cell_value
-          pp str
         res = cell if cell.get_string_cell_value == str
         rescue
         end
