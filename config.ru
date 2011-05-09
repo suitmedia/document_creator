@@ -1,7 +1,6 @@
 require 'rubygems'
 require 'bundler'
 
-#include Java
 require 'java'
 
 Bundler.require

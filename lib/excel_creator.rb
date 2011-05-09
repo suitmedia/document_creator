@@ -29,26 +29,32 @@ class ExcelCreator
   end
 
   def dump_data(cell, data, shift = true)
+    if data.is_a? Array
+      dump_array_data(cell, data, true)
+    else
+      cell.set_cell_value(data)
+    end
+  end
+
+  def dump_array_data(cell, data, shift=true)
     current_cell = cell
     column_idx = cell.get_column_index
     current_row = cell.get_row
-    if data.is_a? Array
-      data.each_with_index do |row_data, index|
-        if row_data.is_a? Array
-          row_data.each do |cell_data|
-            current_cell.set_cell_value(cell_data)
-            current_cell = next_cell(current_cell)
-          end
-        else
-          current_cell.set_cell_value(row_data)
+
+    data.each_with_index do |row_data, index|
+      if row_data.is_a? Array
+        row_data.each do |cell_data|
+          current_cell.set_cell_value(cell_data)
+          current_cell = next_cell(current_cell)
         end
-        if index < data.size - 1
-          current_row = next_row(current_row, shift)
-          current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
-        end
+      else
+        current_cell.set_cell_value(row_data)
       end
-    else
-      cell.set_cell_value(data)
+
+      if index < data.size - 1
+        current_row = next_row(current_row, shift)
+        current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
+      end
     end
   end
 
