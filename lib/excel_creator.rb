@@ -13,7 +13,7 @@ class ExcelCreator
   end
 
   def create(template, data)
-    template = 'financial-deposito.xls'
+    template = 'exportable.xls'
     fs = FileInputStream.new(TemplatePath+template) 
     @wb = HSSFWorkbook.new(fs)
     sheet = @wb.get_sheet_at 0
