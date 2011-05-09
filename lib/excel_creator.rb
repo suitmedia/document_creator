@@ -20,40 +20,35 @@ class ExcelCreator
     hash = JSON.parse(data)
     hash.each do |key, value|
       if cell = get_cell_location(sheet, "#{key}")
-        dump_data(cell, value, true)
-      elsif cell = get_cell_location(sheet, "#{key}")
-        dump_data(cell, value, false)
+        dump_data(cell, value)
       end
     end
     spit
   end
 
-  def dump_data(cell, data, shift = true)
+  def dump_data(cell, data)
     if data.is_a? Array
-      dump_array_data(cell, data, true)
+      dump_array_data(cell, data)
     else
       cell.set_cell_value(data)
     end
   end
 
-  def dump_array_data(cell, data, shift=true)
+  def dump_array_data(cell, data)
     current_cell = cell
-    column_idx = cell.get_column_index
-    current_row = cell.get_row
+    current_row  = cell.get_row
 
     data.each_with_index do |row_data, index|
       if row_data.is_a? Array
-        row_data.each do |cell_data|
+        row_data.each_with_index do |cell_data, i|
           current_cell.set_cell_value(cell_data)
           current_cell = next_cell(current_cell)
         end
+        current_row = next_row(current_row)
+        current_cell = current_row.get_cell(0) || current_row.create_cell(0)
       else
         current_cell.set_cell_value(row_data)
-      end
-
-      if index < data.size - 1
-        current_row = next_row(current_row, shift)
-        current_cell = current_row.get_cell(column_idx) || current_row.create_cell(column_idx)
+        current_cell = next_cell(current_cell)
       end
     end
   end
@@ -64,15 +59,10 @@ class ExcelCreator
     row.get_cell(idx + 1) || row.create_cell(idx + 1)
   end
 
-  def next_row(row, shift)
+  def next_row(row, shift=false)
     sheet = row.get_sheet
     row_num = row.get_row_num
-    row = sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
-    if shift
-      sheet.shift_rows(row_num + 1, sheet.get_last_row_num, 1)
-      row = sheet.get_row(row_num + 1)
-    end
-    row
+    sheet.get_row(row_num + 1) || sheet.create_row(row_num + 1)
   end
 
   def spit
